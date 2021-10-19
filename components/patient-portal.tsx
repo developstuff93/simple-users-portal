@@ -8,19 +8,25 @@ interface Props {
 }
 
 function AddPatientModal({ showAddPatient, setShowAddPatient }) {
-  const { addPatient } = useAppState();
+  const { addPatient, users } = useAppState();
   const [error, setError] = React.useState("");
 
   const [firstName, setFirstName] = React.useState("");
   const [lastName, setLastName] = React.useState("");
-  const [manager, setManager] = React.useState(0);
+  const [manager, setManager] = React.useState(String(users[0].id));
+
+  const userMap = {};
+  users.forEach((user) => {
+    userMap[user.id] = `${user.firstName} ${user.lastName}`;
+  });
+  const userOptions = users.map((user) => String(user.id));
 
   const handleCloseAddPatient = () => {
     setShowAddPatient(false);
   };
 
   const handleAddPatient = () => {
-    if (!firstName.length || !lastName.length || isNaN(manager)) {
+    if (!firstName.length || !lastName.length || !manager.length) {
       setError("All fields are reuiqred");
       return;
     }
@@ -54,6 +60,21 @@ function AddPatientModal({ showAddPatient, setShowAddPatient }) {
             placeholder="Last Name"
             onChange={(e) => setLastName(e.target.value)}
           />
+        </Form.Group>
+        <Form.Group className="mt-2">
+          <Form.Label>Manager</Form.Label>
+          <Form.Control
+            as="select"
+            value={manager}
+            required
+            onChange={(e) => setManager(e.target.value)}
+          >
+            {userOptions.map((userId) => (
+              <option key={userId} value={userId}>
+                {userMap[userId]}
+              </option>
+            ))}
+          </Form.Control>
         </Form.Group>
         {error && (
           <Alert className="mt-2" variant="danger">
